@@ -56,7 +56,7 @@ end''')
 		# Set up the sessions
 		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
-			shutit_sessions.update({machine:shutit.create_session('bash')})
+			shutit_sessions.update({machine:shutit.create_session('bash',loglevel='DEBUG')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
@@ -122,14 +122,13 @@ echo "
 			shutit_session.login('sudo su - stack')
 			shutit_session.send('git clone https://github.com/openstack-dev/devstack.git -b stable/pike devstack/')
 			shutit_session.send('cd devstack')
-			ip = shutit_session[ip]
 			shutit_session.send('''cat > local.conf <<EOF
 [[local|localrc]]
 ADMIN_PASSWORD=secret
 DATABASE_PASSWORD=\$ADMIN_PASSWORD
 RABBIT_PASSWORD=\$ADMIN_PASSWORD
 SERVICE_PASSWORD=\$ADMIN_PASSWORD
-HOST_IP=''' + ip + '''
+HOST_IP=''' + machines.get(machine)['ip'] + '''
 RECLONE=yes
 EOF''')
 			shutit_session.send('./stack.sh')
